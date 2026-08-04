@@ -13,8 +13,9 @@
 		<directory_tree>
 			<file name="SYSTEM.CNF"		type="data" source="${PROJECT_SOURCE_DIR}/system.cnf" />
 			<file name="MSPSX.EXE"	type="data" source="mspsx.exe" />
+			<file name="TILES.TIM" source="${PROJECT_SOURCE_DIR}/assets/tiles.tim" />
 			<dummy sectors="1024"/>
 		</directory_tree>
 	</track>
-	<!--<track type="audio" source="tracks/track2.wav" />-->
+	<track type="audio" source="${PROJECT_SOURCE_DIR}/tracks/track2.wav" />
 </iso_project>
