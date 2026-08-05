@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.21)
 
 project(
 	MineSweeperPSX
-	LANGUAGES    C
+	LANGUAGES    C ASM
 	VERSION      1.0.0
 	DESCRIPTION  "Minesweeper Plus for PlayStation"
 	HOMEPAGE_URL "http://acidps3.22web.org/"

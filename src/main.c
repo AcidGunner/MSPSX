@@ -426,8 +426,8 @@ void DrawSprite(RenderContext *ctx, int x, int y, int tileIndex, int z)
     spr->clut  = tileClut;
 }
 
-int off_x = 6;
-int off_y = 24;
+int off_x = 12;
+int off_y = 12;
 
 #define SCREEN_XRES 320
 #define SCREEN_YRES 240
@@ -438,9 +438,9 @@ void DrawBack(RenderContext *ctx)
 	anim++;
 	int a = (anim / 30) % 2;
 	
-	for (int x = -10; x < SCREEN_XRES; x+=16)
+	for (int x = 0; x < SCREEN_XRES; x+=16)
 	{
-		for (int y = 8; y < SCREEN_YRES; y+=16)
+		for (int y = 0; y < SCREEN_YRES; y+=16)
 		{
 			DrawSprite(ctx, x, y, 2+a, 7);
 		}
@@ -507,8 +507,11 @@ void PlayTrack(int track)
     loc.track = track;
 
     CdControlB(CdlSetloc, &loc, result);
+	
+	uint8_t mode = CdlModeDA | CdlModeAP;
+	CdControlB(CdlSetmode, &mode, NULL);
 
-    CdControlB(CdlPlay, NULL, result);
+	CdControlB(CdlPlay, &track_bcd, NULL);
 }
 
 int main(int argc, const char **argv)
@@ -533,8 +536,12 @@ int main(int argc, const char **argv)
 	while (loaded==0)
 	{
 		DrawBack(&ctx);
-		draw_text(&ctx, 6, 12, 0, "MineSweeperPSX v0.1      -By-AcidNT3.1-");
-		draw_text(&ctx, 6, 36, 0, "PRESS START");
+		draw_text(&ctx, 4, 4, 0, "MineSweeperPSX v0.1      -By-AcidNT3.1-");
+		draw_text(&ctx, 4, 36, 0, "Did controls fix?");
+		
+		draw_text(&ctx, 4, 200, 0, (char *)DebugOutput());
+		
+		draw_text(&ctx, 4, 220, 0, "PRESS START");
 		
 		Pad_Update();
 		uint16_t p = Pad_Pressed();
@@ -550,7 +557,8 @@ int main(int argc, const char **argv)
 	CalculateNumbers();
 	FIRST_CLICK = 1;
 	
-	PlayTrack(2);
+	int tracker = 2 + (rand() % 4);
+	PlayTrack(tracker);
 	
 	for (;;)
 	{
@@ -559,7 +567,7 @@ int main(int argc, const char **argv)
 		
 		char game_str[64];
 		sprintf(game_str, "MINES: %d", mine_count);
-		draw_text(&ctx, 6, 12, 0, game_str);
+		draw_text(&ctx, 4, 4, 0, game_str);
 		
 		Pad_Update();
 		uint16_t p = Pad_Pressed();
@@ -613,10 +621,10 @@ int main(int argc, const char **argv)
 		}
 		else
 		{
-			if(lost) draw_text(&ctx, 200, 12, 0, "GAME OVER.");
-			else draw_text(&ctx, 200, 12, 0, "YOU WIN!");
+			if(lost) draw_text(&ctx, 200, 4, 0, "GAME OVER.");
+			else draw_text(&ctx, 200, 4, 0, "YOU WIN!");
 			
-			draw_text(&ctx, 120, 24, 0, "PRESS START TO TRY AGAIN");
+			draw_text(&ctx, 4, 220, 0, "PRESS START TO TRY AGAIN");
 			if(p & PAD_START)
 			{
 				GenerateBoard();
@@ -626,6 +634,9 @@ int main(int argc, const char **argv)
 				FIRST_CLICK = 1;
 				cursorX = 0;
 				cursorY = 0;
+				
+				tracker = 2 + (rand() % 4);
+				PlayTrack(tracker);
 			}
 		}
 		

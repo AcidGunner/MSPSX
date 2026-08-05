@@ -11,4 +11,6 @@ uint16_t Pad_Held(void);
 uint16_t Pad_Pressed(void);
 uint16_t Pad_Released(void);
 
+const char *DebugOutput();
+
 #endif

@@ -18,4 +18,7 @@
 		</directory_tree>
 	</track>
 	<track type="audio" source="${PROJECT_SOURCE_DIR}/tracks/track2.wav" />
+	<track type="audio" source="${PROJECT_SOURCE_DIR}/tracks/track3.wav" />
+	<track type="audio" source="${PROJECT_SOURCE_DIR}/tracks/track4.wav" />
+	<track type="audio" source="${PROJECT_SOURCE_DIR}/tracks/track5.wav" />
 </iso_project>

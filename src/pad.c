@@ -2,6 +2,7 @@
 #include <string.h>
 #include <psxetc.h>
 #include <psxpad.h>
+#include <stdio.h>
 
 #include "spi.h"
 #include "pad.h"
@@ -15,13 +16,8 @@ static uint16_t pressed = 0;
 static uint16_t released = 0;
 static uint16_t oldHeld = 0;
 
-void send_pad_cmd(
-	uint32_t     port,
-	PadCommand   cmd,
-	uint8_t      arg1,
-	uint8_t      arg2,
-	SPI_Callback callback
-) {
+void send_pad_cmd(uint32_t port, PadCommand cmd, uint8_t arg1, uint8_t arg2, SPI_Callback callback)
+{
 	SPI_Request *req = SPI_CreateRequest();
 
 	req->len              = 9;
@@ -33,27 +29,21 @@ void send_pad_cmd(
 	req->pad_req.motor_r  = arg1;
 	req->pad_req.motor_l  = arg2;
 
-	memset(
-		req->pad_req.dummy,
-		(cmd == PAD_CMD_REQUEST_CONFIG) ? 0xff : 0x00,
-		4
-	);
+	memset(req->pad_req.dummy, (cmd == PAD_CMD_REQUEST_CONFIG) ? 0xff : 0x00, 4);
 }
 
-void dualshock_init_cb(uint32_t port, const volatile uint8_t *buff, size_t rx_len) {
+void dualshock_init_cb(uint32_t port, const volatile uint8_t *buff, size_t rx_len)
+{
 	PadResponse *pad = (PadResponse *) buff;
 
-	if (
-		(rx_len < 2) ||
-		(pad->prefix != 0x5a) ||
-		(pad->type != PAD_ID_CONFIG_MODE)
-	) {
+	if ((rx_len < 2) ||	(pad->prefix != 0x5a) || (pad->type != PAD_ID_CONFIG_MODE))
+	{
 		pad_config_attempt[port]++;
 		return;
 	}
 
 	send_pad_cmd(port, PAD_CMD_CONFIG_MODE,     0x01, 0x00, 0);
-	send_pad_cmd(port, PAD_CMD_SET_ANALOG,      0x01, 0x02, 0);
+	//send_pad_cmd(port, PAD_CMD_SET_ANALOG,      0x01, 0x02, 0);
 	send_pad_cmd(port, PAD_CMD_INIT_PRESSURE,   0x00, 0x00, 0); // Ignored by DualShock 1
 	send_pad_cmd(port, PAD_CMD_REQUEST_CONFIG,  0x00, 0x01, 0);
 	send_pad_cmd(port, PAD_CMD_RESPONSE_CONFIG, 0xff, 0xff, 0); // Ignored by DualShock 1
@@ -62,22 +52,10 @@ void dualshock_init_cb(uint32_t port, const volatile uint8_t *buff, size_t rx_le
 
 void poll_cb(uint32_t port, const volatile uint8_t *buff, size_t rx_len) {
 	pad_buff_len[port] = rx_len;
-	if (rx_len)
-		memcpy((void *) pad_buff[port], (void *) buff, rx_len);
-
+	if (rx_len) memcpy((void *) pad_buff[port], (void *) buff, rx_len);
 	PadResponse *pad = (PadResponse *) buff;
-
-	if (
-		rx_len &&
-		((pad->prefix == 0x5a) || !(pad->prefix)) &&
-		(pad->type == PAD_ID_DIGITAL)
-	) {
-		if (pad_config_attempt[port] < 3) {
-			send_pad_cmd(port, PAD_CMD_CONFIG_MODE, 0x01, 0x00, 0);
-			send_pad_cmd(port, PAD_CMD_READ,        0x00, 0x00, &dualshock_init_cb);
-		}
-	}
-	else pad_config_attempt[port] = 0;
+	
+	pad_config_attempt[port] = 0;
 }
 
 void Pad_Init(void)
@@ -95,8 +73,7 @@ void Pad_Init(void)
 
 void Pad_Update(void)
 {
-    if (pad_buff_len[0] < 4)
-        return;
+    if (pad_buff_len[0] < 4) return;
 
     PadResponse *pad = (PadResponse *)pad_buff[0];
 
@@ -121,4 +98,13 @@ uint16_t Pad_Pressed(void)
 uint16_t Pad_Released(void)
 {
     return released;
+}
+
+const char *DebugOutput(void)
+{
+	static char debug[64];
+	sprintf(debug, "LEN=%d %02X %02X %02X %02X", (int)pad_buff_len[0],
+		pad_buff[0][0], pad_buff[0][1], pad_buff[0][2], pad_buff[0][3]);
+	
+	return debug;
 }

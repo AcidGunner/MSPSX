@@ -179,7 +179,7 @@ void SPI_Init(SPI_Callback callback) {
 	SIO_MODE(0) = 0x000d; // 1x multiplier, 8 data bits, no parity
 	SIO_BAUD(0) = 0x0088; // 250000 bps
 
-	SPI_SetPollRate(250);
+	SPI_SetPollRate(30);
 	_current_req = 0;
 	_default_cb  = callback;
 }
