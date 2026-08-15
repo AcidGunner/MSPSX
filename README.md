@@ -9,3 +9,5 @@ Minesweeper Plus for PlayStation
 mkdir build && cd build
 cmake .. -DCMAKE_TOOLCHAIN_FILE=$PSN00BSDK_LIBS/lib/libpsn00b/cmake/sdk.cmake
 ```
+
+warning the code is ai-assisted
